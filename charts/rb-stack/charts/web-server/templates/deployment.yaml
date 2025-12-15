@@ -28,7 +28,7 @@ spec:
       serviceAccountName: {{ include "web-server.serviceAccountName" . }}
       securityContext:
         {{- include "web-server.podSecurityContext" . | nindent 8 }}
-      {{- with .Values.global.imagePullSecrets }}
+      {{- with ((.Values.global).imagePullSecrets) }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}

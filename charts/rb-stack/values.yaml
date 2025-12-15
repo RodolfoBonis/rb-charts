@@ -7,6 +7,19 @@ name: ""
 # Environment (prod, stg, dev) - used for Vault paths
 environment: prod
 
+# Global values passed to all subcharts
+global:
+  name: ""
+  environment: prod
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+  imagePullSecrets: []
+
 # Vault configuration for External Secrets Operator
 vault:
   # Base path in Vault (without environment)

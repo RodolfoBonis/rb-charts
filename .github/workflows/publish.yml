@@ -41,7 +41,9 @@ jobs:
           cd charts/rb-stack
           helm template test . \
             --set name=test-app \
+            --set global.name=test-app \
             --set environment=prod \
+            --set global.environment=prod \
             --set vault.basePath=k3s/test-app \
             --set web-server.enabled=true \
             --set web-server.image.repository=nginx \

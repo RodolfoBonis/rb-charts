@@ -26,7 +26,7 @@ spec:
         runAsNonRoot: true
         runAsUser: 999
         fsGroup: 999
-      {{- with .Values.global.imagePullSecrets }}
+      {{- with ((.Values.global).imagePullSecrets) }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
