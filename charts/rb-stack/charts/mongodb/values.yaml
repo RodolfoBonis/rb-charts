@@ -1,0 +1,27 @@
+# MongoDB subchart defaults
+# These values are typically overridden by the parent chart
+
+enabled: false
+
+image:
+  repository: mongo
+  tag: "7.0"
+  pullPolicy: IfNotPresent
+
+port: 27017
+
+storage: 5Gi
+storageClassName: ""
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+# Internal network access via pfSense DNS
+internalAccess:
+  enabled: false
+  hostname: ""  # e.g., myapp-mongo.rb.lab

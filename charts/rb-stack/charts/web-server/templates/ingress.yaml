@@ -1,0 +1,41 @@
+{{- if .Values.enabled }}
+{{- if .Values.host }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "web-server.appName" . }}-ingress
+  namespace: {{ include "web-server.namespace" . }}
+  labels:
+    {{- include "web-server.labels" . | nindent 4 }}
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.className | quote }}
+    {{- if .Values.ingress.tls.enabled }}
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.tls.issuer }}
+    {{- end }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.host }}
+    {{- if .Values.expose }}
+    cloudflare.io/expose: "true"
+    {{- end }}
+    {{- range $key, $value := .Values.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.host }}
+      secretName: {{ include "web-server.appName" . }}-tls
+  {{- end }}
+  rules:
+    - host: {{ .Values.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "web-server.serviceName" . }}
+                port:
+                  number: {{ .Values.port }}
+{{- end }}
+{{- end }}

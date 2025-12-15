@@ -1,0 +1,27 @@
+# PostgreSQL subchart defaults
+# These values are typically overridden by the parent chart
+
+enabled: false
+
+image:
+  repository: postgres
+  tag: "17.2"
+  pullPolicy: IfNotPresent
+
+port: 5432
+
+storage: 2Gi
+storageClassName: ""
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+# Internal network access via pfSense DNS
+internalAccess:
+  enabled: false
+  hostname: ""  # e.g., myapp-postgres.rb.lab
