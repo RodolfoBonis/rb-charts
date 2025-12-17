@@ -53,7 +53,10 @@ Deployment name
 */}}
 {{- define "web-server.deploymentName" -}}
 {{- $appName := include "web-server.appName" . -}}
-{{- $suffix := .Values.suffix | default "web" -}}
+{{- $suffix := "web" -}}
+{{- if hasKey .Values "suffix" -}}
+{{- $suffix = .Values.suffix -}}
+{{- end -}}
 {{- if $suffix -}}
 {{- printf "%s-%s" $appName $suffix -}}
 {{- else -}}
@@ -66,7 +69,10 @@ Service name
 */}}
 {{- define "web-server.serviceName" -}}
 {{- $appName := include "web-server.appName" . -}}
-{{- $suffix := .Values.suffix | default "web" -}}
+{{- $suffix := "web" -}}
+{{- if hasKey .Values "suffix" -}}
+{{- $suffix = .Values.suffix -}}
+{{- end -}}
 {{- if $suffix -}}
 {{- printf "%s-%s-svc" $appName $suffix -}}
 {{- else -}}
