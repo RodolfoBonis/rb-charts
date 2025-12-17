@@ -2,7 +2,7 @@ apiVersion: v2
 name: rb-stack
 description: Umbrella chart for standardized Kubernetes deployments with Vault secrets, Cloudflare exposure, and pfSense DNS integration
 type: application
-version: 0.1.5
+version: 0.1.6
 appVersion: "1.0.0"
 
 dependencies:
@@ -12,7 +12,7 @@ dependencies:
     condition: web-server.enabled
 
   - name: postgres
-    version: "0.1.0"
+    version: "0.1.1"
     repository: "file://charts/postgres"
     condition: postgres.enabled
 
