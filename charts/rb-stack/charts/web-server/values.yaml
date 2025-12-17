@@ -3,6 +3,9 @@
 
 enabled: false
 
+# Suffix for deployment/service names (e.g., "web" -> app-web, "api" -> app-api, "" -> app)
+suffix: web
+
 replicas: 1
 
 image:

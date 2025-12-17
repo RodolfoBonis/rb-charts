@@ -52,14 +52,26 @@ Secret name for app
 Deployment name
 */}}
 {{- define "web-server.deploymentName" -}}
-{{- printf "%s-web" (include "web-server.appName" .) }}
+{{- $appName := include "web-server.appName" . -}}
+{{- $suffix := .Values.suffix | default "web" -}}
+{{- if $suffix -}}
+{{- printf "%s-%s" $appName $suffix -}}
+{{- else -}}
+{{- $appName -}}
+{{- end -}}
 {{- end }}
 
 {{/*
 Service name
 */}}
 {{- define "web-server.serviceName" -}}
-{{- printf "%s-web-svc" (include "web-server.appName" .) }}
+{{- $appName := include "web-server.appName" . -}}
+{{- $suffix := .Values.suffix | default "web" -}}
+{{- if $suffix -}}
+{{- printf "%s-%s-svc" $appName $suffix -}}
+{{- else -}}
+{{- printf "%s-svc" $appName -}}
+{{- end -}}
 {{- end }}
 
 {{/*

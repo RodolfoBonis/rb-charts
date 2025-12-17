@@ -47,6 +47,8 @@ vault:
 # Web Server subchart configuration
 web-server:
   enabled: false
+  # Suffix for deployment/service names: "web" -> app-web, "api" -> app-api, "" -> app
+  suffix: web
   replicas: 1
   image:
     repository: ""
