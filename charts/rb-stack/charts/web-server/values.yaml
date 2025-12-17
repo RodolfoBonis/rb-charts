@@ -37,6 +37,12 @@ probes:
     path: /health
     initialDelaySeconds: 10
     periodSeconds: 10
+  startup:
+    enabled: false
+    path: /health
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    failureThreshold: 30
 
 hpa:
   enabled: false
@@ -56,6 +62,9 @@ ingress:
     enabled: true
     issuer: letsencrypt-issuer
 
+# ConfigMap data (key-value pairs for environment variables)
+configMap: {}
+
 # Environment variables from ConfigMap
 env: []
 
@@ -67,3 +76,6 @@ volumeMounts: []
 
 # Additional volumes
 volumes: []
+
+# Pod affinity/anti-affinity rules
+affinity: {}

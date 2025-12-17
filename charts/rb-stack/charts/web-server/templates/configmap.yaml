@@ -1,0 +1,13 @@
+{{- if .Values.enabled }}
+{{- if .Values.configMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "web-server.appName" . }}-config
+  namespace: {{ include "web-server.namespace" . }}
+  labels:
+    {{- include "web-server.labels" . | nindent 4 }}
+data:
+  {{- toYaml .Values.configMap | nindent 2 }}
+{{- end }}
+{{- end }}
