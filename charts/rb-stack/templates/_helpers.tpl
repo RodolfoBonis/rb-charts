@@ -57,7 +57,11 @@ Create the namespace
 Create the Vault role name
 */}}
 {{- define "rb-stack.vaultRole" -}}
+{{- if and .Values.vault .Values.vault.auth .Values.vault.auth.role }}
+{{- .Values.vault.auth.role }}
+{{- else }}
 {{- printf "%s-role" .Values.name }}
+{{- end }}
 {{- end }}
 
 {{/*

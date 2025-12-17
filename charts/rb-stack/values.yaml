@@ -33,6 +33,11 @@ vault:
   # Mount path for KV secrets engine
   mountPath: k3s
 
+  # Auth configuration
+  auth:
+    # Override role name (defaults to {name}-role)
+    role: ""
+
   # Optional: Remap specific keys from Vault to different K8s secret keys
   # Example:
   #   remap:
