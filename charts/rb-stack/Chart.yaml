@@ -2,7 +2,7 @@ apiVersion: v2
 name: rb-stack
 description: Umbrella chart for standardized Kubernetes deployments with Vault secrets, Cloudflare exposure, and pfSense DNS integration
 type: application
-version: 0.1.6
+version: 0.2.0
 appVersion: "1.0.0"
 
 dependencies:
@@ -25,6 +25,11 @@ dependencies:
     version: "0.1.0"
     repository: "file://charts/mongodb"
     condition: mongodb.enabled
+
+  - name: reloader
+    version: "1.2.1"
+    repository: "https://stakater.github.io/stakater-charts"
+    condition: reloader.enabled
 
 maintainers:
   - name: Rodolfo Bonis

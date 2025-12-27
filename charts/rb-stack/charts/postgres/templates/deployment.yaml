@@ -6,6 +6,10 @@ metadata:
   namespace: {{ include "postgres.namespace" . }}
   labels:
     {{- include "postgres.labels" . | nindent 4 }}
+  {{- if ((.Values.global).reloader).enabled | default true }}
+  annotations:
+    reloader.stakater.com/auto: "true"
+  {{- end }}
 spec:
   replicas: 1
   revisionHistoryLimit: 2

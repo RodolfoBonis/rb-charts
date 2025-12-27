@@ -6,6 +6,10 @@ metadata:
   namespace: {{ include "web-server.namespace" . }}
   labels:
     {{- include "web-server.labels" . | nindent 4 }}
+  {{- if ((.Values.global).reloader).enabled | default true }}
+  annotations:
+    reloader.stakater.com/auto: "true"
+  {{- end }}
 spec:
   {{- if not .Values.hpa.enabled }}
   replicas: {{ .Values.replicas }}

@@ -11,6 +11,9 @@ environment: prod
 global:
   name: ""
   environment: prod
+  # Reloader auto-reload configuration
+  reloader:
+    enabled: true
   securityContext:
     runAsNonRoot: true
     runAsUser: 1000
@@ -184,3 +187,10 @@ securityContext:
 
 # Image pull secrets (if using private registry)
 imagePullSecrets: []
+
+# Stakater Reloader configuration
+# Automatically restarts pods when secrets/configmaps change
+reloader:
+  enabled: true
+  reloader:
+    watchGlobally: false
