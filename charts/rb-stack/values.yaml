@@ -36,6 +36,10 @@ vault:
   # Mount path for KV secrets engine
   mountPath: k3s
 
+  # Refresh interval for ExternalSecrets (how often to sync from Vault)
+  # Supports: "30s", "1m", "5m", "1h", etc.
+  refreshInterval: "30s"
+
   # Auth configuration
   auth:
     # Override role name (defaults to {name}-role)
