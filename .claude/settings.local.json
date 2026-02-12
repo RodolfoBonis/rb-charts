@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:artifacthub.io)",
+      "WebSearch",
+      "Bash(helm dependency:*)",
+      "Bash(brew list:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(ssh:*)",
+      "WebFetch(domain:external-secrets.io)"
+    ]
+  }
+}

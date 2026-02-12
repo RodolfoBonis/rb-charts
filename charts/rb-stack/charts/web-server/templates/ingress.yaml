@@ -12,8 +12,8 @@ metadata:
     {{- if .Values.ingress.tls.enabled }}
     cert-manager.io/cluster-issuer: {{ .Values.ingress.tls.issuer }}
     {{- end }}
-    external-dns.alpha.kubernetes.io/hostname: {{ .Values.host }}
     {{- if .Values.expose }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.host }}
     cloudflare.io/expose: "true"
     {{- end }}
     {{- range $key, $value := .Values.ingress.annotations }}
