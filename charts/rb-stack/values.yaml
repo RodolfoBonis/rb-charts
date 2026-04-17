@@ -8,6 +8,9 @@ name: ""
 environment: prod
 
 # Global values passed to all subcharts
+# NOTE: set `global.name` to the same value as top-level `name` so subcharts
+# (redis, postgres, mongodb, nats, worker, ...) name resources consistently
+# with parent templates. If left empty, subcharts fall back to `.Release.Name`.
 global:
   name: ""
   environment: prod
@@ -179,6 +182,22 @@ mongodb:
   internalAccess:
     enabled: false
     hostname: ""  # e.g., myapp-mongo.rb.lab
+
+# NATS subchart configuration
+# See charts/nats/values.yaml for the full schema
+nats:
+  enabled: false
+
+# Worker subchart configuration (background Deployment, no Service/Ingress)
+# See charts/worker/values.yaml for the full schema
+worker:
+  enabled: false
+
+# FCM (Firebase Cloud Messaging) credentials
+# When enabled and vault.basePath is set, creates ExternalSecret {name}-fcm-secret
+# from Vault path {basePath}/{environment}/fcm
+fcm:
+  enabled: false
 
 # Security context defaults
 securityContext:
