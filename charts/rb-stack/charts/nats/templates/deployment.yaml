@@ -1,0 +1,82 @@
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nats.deploymentName" . }}
+  namespace: {{ include "nats.namespace" . }}
+  labels:
+    {{- include "nats.labels" . | nindent 4 }}
+  {{- if ((.Values.global).reloader).enabled | default true }}
+  annotations:
+    reloader.stakater.com/auto: "true"
+  {{- end }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  {{- if and .Values.jetstream.enabled .Values.jetstream.storage }}
+  strategy:
+    type: Recreate
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "nats.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "nats.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "nats.serviceAccountName" . }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      {{- with ((.Values.global).imagePullSecrets) }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: nats
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - nats-server
+            - "-js"
+            - "-sd"
+            - /data
+            - "-m"
+            - "8222"
+            - "-p"
+            - "4222"
+          ports:
+            - containerPort: {{ .Values.clientPort }}
+              name: client
+              protocol: TCP
+            - containerPort: {{ .Values.monitorPort }}
+              name: monitor
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.clientPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.monitorPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          volumeMounts:
+            {{- if and .Values.jetstream.enabled .Values.jetstream.storage }}
+            - name: data
+              mountPath: /data
+            {{- end }}
+      volumes:
+        {{- if and .Values.jetstream.enabled .Values.jetstream.storage }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "nats.pvcName" . }}
+        {{- end }}
+{{- end }}

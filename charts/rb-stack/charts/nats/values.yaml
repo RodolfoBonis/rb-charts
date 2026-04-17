@@ -1,0 +1,29 @@
+# NATS subchart defaults
+# These values are typically overridden by the parent chart
+
+enabled: false
+
+image:
+  repository: nats
+  tag: "2-alpine"
+  pullPolicy: IfNotPresent
+
+clientPort: 4222
+monitorPort: 8222
+
+jetstream:
+  enabled: true
+  storage: 2Gi
+  storageClassName: ""
+
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "50m"
+  limits:
+    memory: "256Mi"
+
+# Internal network access via pfSense DNS
+internalAccess:
+  enabled: false
+  hostname: ""  # e.g., myapp-nats.rb.lab

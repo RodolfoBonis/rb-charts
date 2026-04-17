@@ -1,0 +1,20 @@
+{{- if .Values.enabled }}
+{{- if and .Values.jetstream.enabled .Values.jetstream.storage }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "nats.pvcName" . }}
+  namespace: {{ include "nats.namespace" . }}
+  labels:
+    {{- include "nats.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.jetstream.storageClassName }}
+  storageClassName: {{ .Values.jetstream.storageClassName }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.jetstream.storage }}
+{{- end }}
+{{- end }}
