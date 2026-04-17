@@ -1,0 +1,54 @@
+# Worker subchart defaults
+# Background worker Deployment: no Service, no Ingress, no HPA, exec probes optional.
+
+enabled: false
+
+# Suffix for deployment name: "worker" -> app-worker
+suffix: worker
+
+replicas: 1
+
+image:
+  repository: ""
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+
+probes:
+  liveness:
+    enabled: false
+    exec:
+      command: ["/bin/true"]
+    initialDelaySeconds: 30
+    periodSeconds: 30
+  startup:
+    enabled: false
+    exec:
+      command: ["/bin/true"]
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    failureThreshold: 30
+
+# Seconds to wait before SIGKILL after SIGTERM during pod termination
+terminationGracePeriodSeconds: 60
+
+# Environment variables (list)
+env: []
+
+# Additional envFrom sources merged with the app secret
+envFrom: []
+
+# Additional volume mounts
+volumeMounts: []
+
+# Additional volumes
+volumes: []
+
+# Pod affinity/anti-affinity rules
+affinity: {}
