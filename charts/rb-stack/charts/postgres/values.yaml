@@ -48,6 +48,11 @@ cnpg:
       cpu: "500m"
   legacyServiceAlias:
     enabled: true        # service ExternalName {app}-postgres-svc -> {app}-postgres-rw
+  # Parâmetros do Postgres (spec.postgresql). archive_timeout garante RPO limitado
+  # mesmo com a base ociosa (arquiva o WAL ao menos a cada intervalo).
+  postgresql:
+    parameters:
+      archive_timeout: "300s"
   backup:
     enabled: false
     endpointURL: "http://minio.minio:9000"

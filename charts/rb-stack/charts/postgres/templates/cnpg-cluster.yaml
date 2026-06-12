@@ -18,6 +18,10 @@ spec:
     {{- end }}
   resources:
     {{- toYaml .Values.cnpg.resources | nindent 4 }}
+  {{- with (.Values.cnpg.postgresql) }}
+  postgresql:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   bootstrap:
     initdb:
       database: {{ include "postgres.cnpgDatabase" . }}

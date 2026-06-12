@@ -155,6 +155,9 @@ postgres:
         cpu: "500m"
     legacyServiceAlias:
       enabled: true
+    postgresql:
+      parameters:
+        archive_timeout: "300s"
     backup:
       enabled: false
       endpointURL: "http://minio.minio:9000"
