@@ -68,3 +68,38 @@ PVC name
 {{- define "postgres.pvcName" -}}
 {{- printf "%s-postgres-pvc" (include "postgres.appName" .) }}
 {{- end }}
+
+{{/*
+CNPG: nome do Cluster
+*/}}
+{{- define "postgres.cnpgClusterName" -}}
+{{- printf "%s-postgres" (include "postgres.appName" .) }}
+{{- end }}
+
+{{/*
+CNPG: service read-write gerado pelo operator
+*/}}
+{{- define "postgres.cnpgRwServiceName" -}}
+{{- printf "%s-rw" (include "postgres.cnpgClusterName" .) }}
+{{- end }}
+
+{{/*
+CNPG: database (default = app name)
+*/}}
+{{- define "postgres.cnpgDatabase" -}}
+{{- .Values.cnpg.database | default (include "postgres.appName" .) }}
+{{- end }}
+
+{{/*
+CNPG: owner role (default = app name)
+*/}}
+{{- define "postgres.cnpgOwner" -}}
+{{- .Values.cnpg.owner | default (include "postgres.appName" .) }}
+{{- end }}
+
+{{/*
+CNPG: secret (basic-auth) com username/password do owner
+*/}}
+{{- define "postgres.cnpgOwnerSecret" -}}
+{{- .Values.cnpg.ownerSecret.name | default (printf "%s-cnpg-app" (include "postgres.appName" .)) }}
+{{- end }}

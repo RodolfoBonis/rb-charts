@@ -1,0 +1,16 @@
+{{- if and .Values.enabled (.Values.cnpg).enabled .Values.cnpg.backup.enabled (.Values.cnpg.backup.scheduled).enabled }}
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: {{ include "postgres.cnpgClusterName" . }}-daily
+  namespace: {{ include "postgres.namespace" . }}
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+spec:
+  # CNPG usa cron de 6 campos (segundos primeiro).
+  schedule: {{ .Values.cnpg.backup.scheduled.schedule | quote }}
+  immediate: {{ .Values.cnpg.backup.scheduled.immediate }}
+  backupOwnerReference: self
+  cluster:
+    name: {{ include "postgres.cnpgClusterName" . }}
+{{- end }}

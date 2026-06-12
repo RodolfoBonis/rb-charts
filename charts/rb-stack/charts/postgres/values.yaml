@@ -25,3 +25,41 @@ resources:
 internalAccess:
   enabled: false
   hostname: ""  # e.g., myapp-postgres.rb.lab
+
+# CloudNativePG (PITR contínuo). OPT-IN: enabled=false mantém o Deployment/PVC/Service
+# tradicional intactos (os outros apps não são afetados).
+cnpg:
+  enabled: false
+  instances: 1
+  imageName: ""          # "" => imagem padrão do operator
+  database: ""           # "" => nome do app
+  owner: ""              # "" => nome do app
+  ownerSecret:
+    name: ""             # "" => "{app}-cnpg-app" (secret basic-auth username/password)
+  storage:
+    size: 5Gi
+    storageClassName: ""
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "25m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+  legacyServiceAlias:
+    enabled: true        # service ExternalName {app}-postgres-svc -> {app}-postgres-rw
+  backup:
+    enabled: false
+    endpointURL: "http://minio.minio:9000"
+    destinationPath: ""  # ex.: s3://meu-bucket-wal/
+    s3Credentials:
+      secretName: ""
+      accessKeyIdKey: ACCESS_KEY_ID
+      secretAccessKeyKey: ACCESS_SECRET_KEY
+    wal:
+      compression: gzip
+    retentionPolicy: "30d"
+    scheduled:
+      enabled: true
+      schedule: "0 0 3 * * *"   # CNPG: cron de 6 campos (03:00 UTC)
+      immediate: true

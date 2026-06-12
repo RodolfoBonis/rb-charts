@@ -1,0 +1,43 @@
+{{- if and .Values.enabled (.Values.cnpg).enabled }}
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ include "postgres.cnpgClusterName" . }}
+  namespace: {{ include "postgres.namespace" . }}
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+spec:
+  instances: {{ .Values.cnpg.instances }}
+  {{- with .Values.cnpg.imageName }}
+  imageName: {{ . }}
+  {{- end }}
+  storage:
+    size: {{ .Values.cnpg.storage.size }}
+    {{- with .Values.cnpg.storage.storageClassName }}
+    storageClass: {{ . }}
+    {{- end }}
+  resources:
+    {{- toYaml .Values.cnpg.resources | nindent 4 }}
+  bootstrap:
+    initdb:
+      database: {{ include "postgres.cnpgDatabase" . }}
+      owner: {{ include "postgres.cnpgOwner" . }}
+      secret:
+        name: {{ include "postgres.cnpgOwnerSecret" . }}
+  {{- if .Values.cnpg.backup.enabled }}
+  backup:
+    retentionPolicy: {{ .Values.cnpg.backup.retentionPolicy | quote }}
+    barmanObjectStore:
+      destinationPath: {{ .Values.cnpg.backup.destinationPath | quote }}
+      endpointURL: {{ .Values.cnpg.backup.endpointURL | quote }}
+      s3Credentials:
+        accessKeyId:
+          name: {{ .Values.cnpg.backup.s3Credentials.secretName }}
+          key: {{ .Values.cnpg.backup.s3Credentials.accessKeyIdKey }}
+        secretAccessKey:
+          name: {{ .Values.cnpg.backup.s3Credentials.secretName }}
+          key: {{ .Values.cnpg.backup.s3Credentials.secretAccessKeyKey }}
+      wal:
+        compression: {{ .Values.cnpg.backup.wal.compression }}
+  {{- end }}
+{{- end }}

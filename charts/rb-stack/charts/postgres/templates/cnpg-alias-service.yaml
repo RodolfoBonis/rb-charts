@@ -1,0 +1,14 @@
+{{- if and .Values.enabled (.Values.cnpg).enabled (.Values.cnpg.legacyServiceAlias).enabled }}
+# Mantém o nome de service legado ({app}-postgres-svc) apontando para o service
+# read-write do CNPG, para o DB_DSN dos apps continuar válido sem edição.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "postgres.serviceName" . }}
+  namespace: {{ include "postgres.namespace" . }}
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+spec:
+  type: ExternalName
+  externalName: {{ include "postgres.cnpgRwServiceName" . }}.{{ include "postgres.namespace" . }}.svc.cluster.local
+{{- end }}

@@ -134,6 +134,43 @@ postgres:
     enabled: false
     hostname: ""  # e.g., myapp-postgres.rb.lab
 
+  # CloudNativePG (PITR contínuo). OPT-IN — ver charts/postgres/values.yaml.
+  cnpg:
+    enabled: false
+    instances: 1
+    imageName: ""
+    database: ""
+    owner: ""
+    ownerSecret:
+      name: ""
+    storage:
+      size: 5Gi
+      storageClassName: ""
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "25m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+    legacyServiceAlias:
+      enabled: true
+    backup:
+      enabled: false
+      endpointURL: "http://minio.minio:9000"
+      destinationPath: ""
+      s3Credentials:
+        secretName: ""
+        accessKeyIdKey: ACCESS_KEY_ID
+        secretAccessKeyKey: ACCESS_SECRET_KEY
+      wal:
+        compression: gzip
+      retentionPolicy: "30d"
+      scheduled:
+        enabled: true
+        schedule: "0 0 3 * * *"
+        immediate: true
+
 # Redis subchart configuration
 redis:
   enabled: false
