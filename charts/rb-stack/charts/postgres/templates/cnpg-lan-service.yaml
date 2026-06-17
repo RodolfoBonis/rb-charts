@@ -1,0 +1,26 @@
+{{- if and .Values.enabled (.Values.cnpg).enabled .Values.internalAccess.enabled }}
+# Acesso interno (LAN) ao Postgres do CNPG via DNS do pfSense.
+# Service LoadBalancer (MetalLB) que seleciona o pod primary do Cluster CNPG — os
+# services do operator ({app}-postgres-rw/-ro/-r) são ClusterIP e não publicam DNS.
+# O alias ExternalName ({app}-postgres-svc) continua intacto para o DB_DSN dos apps.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "postgres.cnpgLanServiceName" . }}
+  namespace: {{ include "postgres.namespace" . }}
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+  annotations:
+    dns.pfsense.org/enabled: "true"
+    dns.pfsense.org/hostname: {{ .Values.internalAccess.hostname | quote }}
+spec:
+  type: LoadBalancer
+  ports:
+    - port: {{ .Values.port }}
+      targetPort: 5432
+      protocol: TCP
+      name: postgres
+  selector:
+    cnpg.io/cluster: {{ include "postgres.cnpgClusterName" . }}
+    cnpg.io/instanceRole: primary
+{{- end }}

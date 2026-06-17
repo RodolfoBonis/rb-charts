@@ -59,7 +59,7 @@ charts/rb-stack/           # Main umbrella chart
 - **Global values**: Use `global.name` and `global.environment` to pass values to subcharts
 - **Vault paths**: Secrets fetched from `{vault.basePath}/{environment}/{component}` (app, db, redis)
 - **Secret names**: `{name}-secret`, `{name}-db-secret`, `{name}-redis-secret`
-- **Internal access**: Enable `internalAccess.enabled` + `internalAccess.hostname` for LoadBalancer + pfSense DNS
+- **Internal access**: Enable `internalAccess.enabled` + `internalAccess.hostname` for LoadBalancer + pfSense DNS. Works for plain Postgres and CNPG mode (CNPG adds a `{app}-postgres-lan` LoadBalancer targeting the cluster primary)
 
 ## CI/CD
 

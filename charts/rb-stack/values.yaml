@@ -129,7 +129,7 @@ postgres:
       memory: "512Mi"
       cpu: "500m"
 
-  # Internal network access via pfSense DNS
+  # Internal network access via pfSense DNS (funciona no Postgres simples e no CNPG)
   internalAccess:
     enabled: false
     hostname: ""  # e.g., myapp-postgres.rb.lab

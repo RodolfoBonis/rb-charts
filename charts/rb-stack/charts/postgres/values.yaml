@@ -21,7 +21,9 @@ resources:
     memory: "512Mi"
     cpu: "500m"
 
-# Internal network access via pfSense DNS
+# Internal network access via pfSense DNS. Vale tanto para o Postgres "simples"
+# (Service LoadBalancer) quanto para o modo CNPG (Service LoadBalancer extra
+# {app}-postgres-lan apontando para a primary do Cluster).
 internalAccess:
   enabled: false
   hostname: ""  # e.g., myapp-postgres.rb.lab

@@ -84,6 +84,15 @@ CNPG: service read-write gerado pelo operator
 {{- end }}
 
 {{/*
+CNPG: service LoadBalancer de acesso interno (LAN via pfSense).
+Nome distinto do alias ExternalName ({app}-postgres-svc) e dos services do operator
+({app}-postgres-rw/-ro/-r).
+*/}}
+{{- define "postgres.cnpgLanServiceName" -}}
+{{- printf "%s-postgres-lan" (include "postgres.appName" .) }}
+{{- end }}
+
+{{/*
 CNPG: database (default = app name)
 */}}
 {{- define "postgres.cnpgDatabase" -}}
