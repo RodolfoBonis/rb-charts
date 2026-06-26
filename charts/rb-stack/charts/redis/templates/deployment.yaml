@@ -44,13 +44,33 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if .Values.persistence.enabled }}
+          {{- if or .Values.persistence.enabled .Values.auth.enabled }}
           command:
             - redis-server
+            {{- if .Values.auth.enabled }}
+            - --requirepass
+            - $(REDIS_PASSWORD)
+            {{- end }}
+            {{- if .Values.persistence.enabled }}
             - --appendonly
             - "yes"
             - --dir
             - /data
+            {{- end }}
+          {{- end }}
+          {{- if .Values.auth.enabled }}
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "redis.auth.existingSecret is required when redis.auth.enabled" .Values.auth.existingSecret }}
+                  key: {{ .Values.auth.existingSecretKey | default "REDIS_PASSWORD" }}
+            # redis-cli (probes) authenticates automatically via REDISCLI_AUTH
+            - name: REDISCLI_AUTH
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.existingSecret }}
+                  key: {{ .Values.auth.existingSecretKey | default "REDIS_PASSWORD" }}
           {{- end }}
           readinessProbe:
             exec:
