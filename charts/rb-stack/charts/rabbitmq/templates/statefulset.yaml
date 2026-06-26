@@ -33,6 +33,19 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       terminationGracePeriodSeconds: 60
+      # O fsGroup do pod marca o group nos arquivos do PVC, deixando o
+      # /var/lib/rabbitmq/.erlang.cookie legível pelo grupo (0660) a cada (re)mount. O RabbitMQ 4.x
+      # recusa subir se o cookie não for owner-only, então corrigimos a permissão antes do broker.
+      initContainers:
+        - name: fix-cookie-perms
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["sh", "-c", "chmod 600 /var/lib/rabbitmq/.erlang.cookie 2>/dev/null || true"]
+          resources:
+            requests: { memory: "16Mi", cpu: "10m" }
+            limits: { memory: "32Mi" }
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/rabbitmq }
       containers:
         - name: rabbitmq
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
