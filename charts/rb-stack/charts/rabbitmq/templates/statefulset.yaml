@@ -1,0 +1,106 @@
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "rabbitmq.fullname" . }}
+  namespace: {{ include "rabbitmq.namespace" . }}
+  labels:
+    {{- include "rabbitmq.labels" . | nindent 4 }}
+  {{- if ((.Values.global).reloader).enabled | default true }}
+  annotations:
+    reloader.stakater.com/auto: "true"
+  {{- end }}
+spec:
+  serviceName: {{ include "rabbitmq.headlessName" . }}
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      {{- include "rabbitmq.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "rabbitmq.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "rabbitmq.serviceAccountName" . }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      {{- with ((.Values.global).imagePullSecrets) }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: rabbitmq
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            # Single node: pin the node name so Mnesia/quorum data survives reschedules.
+            - { name: RABBITMQ_NODENAME, value: "rabbit@localhost" }
+            - { name: RABBITMQ_USE_LONGNAME, value: "false" }
+            - name: RABBITMQ_DEFAULT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "rabbitmq.auth.existingSecret is required when rabbitmq.enabled" .Values.auth.existingSecret }}
+                  key: {{ .Values.auth.userKey | default "RABBITMQ_DEFAULT_USER" }}
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.existingSecret }}
+                  key: {{ .Values.auth.passwordKey | default "RABBITMQ_DEFAULT_PASS" }}
+            {{- if .Values.auth.erlangCookieSecret }}
+            - name: RABBITMQ_ERLANG_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.erlangCookieSecret }}
+                  key: {{ .Values.auth.erlangCookieKey | default "RABBITMQ_ERLANG_COOKIE" }}
+            {{- end }}
+          ports:
+            - { name: amqp, containerPort: {{ .Values.ports.amqp }}, protocol: TCP }
+            - { name: management, containerPort: {{ .Values.ports.management }}, protocol: TCP }
+            - { name: metrics, containerPort: {{ .Values.ports.metrics }}, protocol: TCP }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          readinessProbe:
+            exec:
+              command: ["rabbitmq-diagnostics", "-q", "check_running"]
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            timeoutSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["rabbitmq-diagnostics", "-q", "ping"]
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 15
+          volumeMounts:
+            - { name: config, mountPath: /etc/rabbitmq/enabled_plugins, subPath: enabled_plugins }
+            - { name: config, mountPath: /etc/rabbitmq/rabbitmq.conf, subPath: rabbitmq.conf }
+            - { name: data, mountPath: /var/lib/rabbitmq }
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "rabbitmq.configName" . }}
+        {{- if not .Values.persistence.enabled }}
+        - name: data
+          emptyDir: {}
+        {{- end }}
+  {{- if .Values.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          {{- include "rabbitmq.labels" . | nindent 10 }}
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        {{- if .Values.storageClassName }}
+        storageClassName: {{ .Values.storageClassName }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.storage }}
+  {{- end }}
+{{- end }}

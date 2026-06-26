@@ -219,6 +219,34 @@ redis:
   externalSecret:
     enabled: true
 
+# RabbitMQ subchart configuration (shared broker: queues/topics provisioned via Terraform)
+rabbitmq:
+  enabled: false
+  image:
+    repository: rabbitmq
+    tag: "4-management"
+  storage: 5Gi
+  persistence:
+    enabled: true
+  # Admin user/pass from an existing secret (e.g. the app secret {name}-secret from Vault).
+  auth:
+    existingSecret: ""
+    userKey: RABBITMQ_DEFAULT_USER
+    passwordKey: RABBITMQ_DEFAULT_PASS
+  plugins:
+    - rabbitmq_management
+    - rabbitmq_prometheus
+  internalAccess:
+    enabled: false
+    hostname: ""
+  ingress:
+    enabled: false
+    host: ""
+    clusterIssuer: letsencrypt-issuer
+  monitoring:
+    serviceMonitor:
+      enabled: false
+
 # MongoDB subchart configuration
 mongodb:
   enabled: false
