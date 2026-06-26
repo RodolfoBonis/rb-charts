@@ -27,3 +27,11 @@ resources:
 internalAccess:
   enabled: false
   hostname: ""  # e.g., myapp-redis.rb.lab
+
+# Optional password auth (requirepass). Off by default so apps stay passwordless.
+# When enabled, the server starts with --requirepass and reads the password from an
+# existing secret key; redis-cli probes auth via REDISCLI_AUTH automatically.
+auth:
+  enabled: false
+  existingSecret: ""              # secret holding the password (e.g. {app}-secret)
+  existingSecretKey: REDIS_PASSWORD

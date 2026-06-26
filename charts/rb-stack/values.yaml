@@ -199,6 +199,20 @@ redis:
     enabled: false
     hostname: ""  # e.g., myapp-redis.rb.lab
 
+  # Optional password auth (requirepass). Off by default -> apps stay passwordless.
+  # When enabled, point existingSecret/existingSecretKey at a secret holding the
+  # password (e.g. the app secret {name}-secret with REDIS_PASSWORD).
+  auth:
+    enabled: false
+    existingSecret: ""
+    existingSecretKey: REDIS_PASSWORD
+
+  # The chart creates a {name}-redis-secret ExternalSecret from {basePath}/{env}/redis.
+  # Disable when the redis password lives in another secret (e.g. the app secret) and
+  # there is no dedicated redis Vault path.
+  externalSecret:
+    enabled: true
+
 # MongoDB subchart configuration
 mongodb:
   enabled: false
