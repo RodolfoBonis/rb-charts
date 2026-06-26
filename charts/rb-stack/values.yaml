@@ -228,7 +228,10 @@ rabbitmq:
   storage: 5Gi
   persistence:
     enabled: true
-  # Admin user/pass from an existing secret (e.g. the app secret {name}-secret from Vault).
+  # The chart creates {name}-rabbitmq-secret from {basePath}/{env}/rabbitmq (admin creds).
+  externalSecret:
+    enabled: true
+  # Admin user/pass from an existing secret (defaults to the {name}-rabbitmq-secret above).
   auth:
     existingSecret: ""
     userKey: RABBITMQ_DEFAULT_USER
