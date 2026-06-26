@@ -1,0 +1,59 @@
+# RabbitMQ subchart defaults. Overridden by the parent chart.
+enabled: false
+
+image:
+  repository: rabbitmq
+  tag: "4-management"
+  pullPolicy: IfNotPresent
+
+ports:
+  amqp: 5672
+  management: 15672
+  metrics: 15692
+
+storage: 5Gi
+storageClassName: ""
+persistence:
+  enabled: true
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "1Gi"
+
+# Admin user/password from an existing secret (e.g. the app secret {name}-secret that the parent
+# materializes from Vault). The official image creates this user on first boot.
+auth:
+  existingSecret: ""
+  userKey: RABBITMQ_DEFAULT_USER
+  passwordKey: RABBITMQ_DEFAULT_PASS
+  # Optional: pin the Erlang cookie from a secret (needed only when clustering > 1 node).
+  erlangCookieSecret: ""
+  erlangCookieKey: RABBITMQ_ERLANG_COOKIE
+
+# Plugins enabled via /etc/rabbitmq/enabled_plugins
+plugins:
+  - rabbitmq_management
+  - rabbitmq_prometheus
+
+# Extra lines appended to rabbitmq.conf
+extraConfig: ""
+
+# LoadBalancer (MetalLB) + pfSense DNS for reaching AMQP from the LAN
+internalAccess:
+  enabled: false
+  hostname: ""   # e.g. rabbitmq.rb.lab
+
+# Ingress for the management UI (Cloudflare-exposed)
+ingress:
+  enabled: false
+  host: ""                      # e.g. rabbitmq.rodolfodebonis.com.br
+  clusterIssuer: letsencrypt-issuer
+  tlsSecretName: ""             # defaults to {name}-rabbitmq-tls
+
+monitoring:
+  serviceMonitor:
+    enabled: false
+    interval: 30s
