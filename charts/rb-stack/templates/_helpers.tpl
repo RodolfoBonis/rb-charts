@@ -93,6 +93,13 @@ Create the redis secret name
 {{- end }}
 
 {{/*
+Create the rabbitmq secret name
+*/}}
+{{- define "rb-stack.rabbitmqSecretName" -}}
+{{- printf "%s-rabbitmq-secret" .Values.name }}
+{{- end }}
+
+{{/*
 Create Vault path for a component
 */}}
 {{- define "rb-stack.vaultPath" -}}
