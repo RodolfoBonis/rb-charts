@@ -44,7 +44,7 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if or .Values.persistence.enabled .Values.auth.enabled }}
+          {{- if or .Values.persistence.enabled .Values.auth.enabled .Values.maxmemory }}
           command:
             - redis-server
             {{- if .Values.auth.enabled }}
@@ -56,6 +56,14 @@ spec:
             - "yes"
             - --dir
             - /data
+            {{- end }}
+            {{- if .Values.maxmemory }}
+            - --maxmemory
+            - {{ .Values.maxmemory | quote }}
+            {{- if .Values.maxmemoryPolicy }}
+            - --maxmemory-policy
+            - {{ .Values.maxmemoryPolicy | quote }}
+            {{- end }}
             {{- end }}
           {{- end }}
           {{- if .Values.auth.enabled }}

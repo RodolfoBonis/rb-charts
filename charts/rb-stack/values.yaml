@@ -187,6 +187,12 @@ redis:
   persistence:
     enabled: false
 
+  # Memory cap + eviction. Empty = redis default (no limit, noeviction). For caches
+  # set maxmemory below the container limit + an LRU policy so redis evicts instead
+  # of being OOMKilled. maxmemoryPolicy only applies when maxmemory is set.
+  maxmemory: ""              # e.g. "100mb"
+  maxmemoryPolicy: ""        # e.g. "allkeys-lru"
+
   resources:
     requests:
       memory: "64Mi"

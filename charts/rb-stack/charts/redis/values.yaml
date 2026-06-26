@@ -16,6 +16,13 @@ storageClassName: ""
 persistence:
   enabled: false
 
+# Memory cap + eviction. Empty = redis default (no limit, noeviction -> risks OOMKill
+# at the container memory limit). For caches set e.g. maxmemory "100mb" + an LRU policy
+# so redis evicts instead of being killed. maxmemoryPolicy is only applied when maxmemory
+# is set.
+maxmemory: ""              # e.g. "100mb"
+maxmemoryPolicy: ""        # e.g. "allkeys-lru", "volatile-lru", "noeviction"
+
 resources:
   requests:
     memory: "64Mi"
