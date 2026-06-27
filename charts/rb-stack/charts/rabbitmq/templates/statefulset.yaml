@@ -72,7 +72,9 @@ spec:
                   key: {{ .Values.auth.erlangCookieKey | default "RABBITMQ_ERLANG_COOKIE" }}
             {{- end }}
           ports:
+            {{- if not (and .Values.tls.enabled .Values.tls.disablePlaintext) }}
             - { name: amqp, containerPort: {{ .Values.ports.amqp }}, protocol: TCP }
+            {{- end }}
             {{- if .Values.tls.enabled }}
             - { name: amqps, containerPort: {{ .Values.ports.amqps }}, protocol: TCP }
             {{- end }}

@@ -18,7 +18,9 @@ spec:
   type: ClusterIP
   {{- end }}
   ports:
+    {{- if not (and .Values.tls.enabled .Values.tls.disablePlaintext) }}
     - { name: amqp, port: {{ .Values.ports.amqp }}, targetPort: amqp, protocol: TCP }
+    {{- end }}
     {{- if .Values.tls.enabled }}
     - { name: amqps, port: {{ .Values.ports.amqps }}, targetPort: amqps, protocol: TCP }
     {{- end }}
@@ -39,7 +41,12 @@ spec:
   clusterIP: None
   publishNotReadyAddresses: true
   ports:
+    {{- if not (and .Values.tls.enabled .Values.tls.disablePlaintext) }}
     - { name: amqp, port: {{ .Values.ports.amqp }}, targetPort: amqp, protocol: TCP }
+    {{- end }}
+    {{- if .Values.tls.enabled }}
+    - { name: amqps, port: {{ .Values.ports.amqps }}, targetPort: amqps, protocol: TCP }
+    {{- end }}
   selector:
     {{- include "rabbitmq.selectorLabels" . | nindent 4 }}
 {{- end }}
