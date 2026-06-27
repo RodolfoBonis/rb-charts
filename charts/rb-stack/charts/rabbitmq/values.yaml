@@ -8,8 +8,20 @@ image:
 
 ports:
   amqp: 5672
+  amqps: 5671
   management: 15672
   metrics: 15692
+
+# AMQPS (TLS) for AMQP — so OAuth tokens used as the AMQP password aren't sent in cleartext.
+# When enabled with an issuer, the chart provisions a cert-manager Certificate (LAN host + in-cluster
+# service DNS) and configures ssl_options + the 5671 listener. Plaintext 5672 stays up for legacy
+# basic-auth clients until they migrate.
+tls:
+  enabled: false
+  issuer: ""                 # ClusterIssuer name, e.g. internal-ca-issuer
+  issuerKind: ClusterIssuer  # or Issuer
+  secretName: ""             # default {name}-rabbitmq-amqps-tls
+  dnsNames: []               # extra SANs beyond the LAN host + service DNS
 
 storage: 5Gi
 storageClassName: ""

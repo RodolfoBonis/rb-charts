@@ -16,6 +16,15 @@ data:
     prometheus.return_per_object_metrics = true
     # guest stays loopback-only; real access is the Vault-managed admin user
     loopback_users.guest = true
+    {{- if .Values.tls.enabled }}
+    # AMQPS: server-side TLS so OAuth tokens (used as the AMQP password) never travel in cleartext.
+    listeners.ssl.default = {{ .Values.ports.amqps }}
+    ssl_options.cacertfile = /etc/rabbitmq/certs/ca.crt
+    ssl_options.certfile = /etc/rabbitmq/certs/tls.crt
+    ssl_options.keyfile = /etc/rabbitmq/certs/tls.key
+    ssl_options.verify = verify_none
+    ssl_options.fail_if_no_peer_cert = false
+    {{- end }}
     {{- with .Values.extraConfig }}
     {{ . | nindent 4 }}
     {{- end }}

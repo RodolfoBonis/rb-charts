@@ -19,6 +19,9 @@ spec:
   {{- end }}
   ports:
     - { name: amqp, port: {{ .Values.ports.amqp }}, targetPort: amqp, protocol: TCP }
+    {{- if .Values.tls.enabled }}
+    - { name: amqps, port: {{ .Values.ports.amqps }}, targetPort: amqps, protocol: TCP }
+    {{- end }}
     - { name: management, port: {{ .Values.ports.management }}, targetPort: management, protocol: TCP }
     - { name: metrics, port: {{ .Values.ports.metrics }}, targetPort: metrics, protocol: TCP }
   selector:
