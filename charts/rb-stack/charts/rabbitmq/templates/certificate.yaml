@@ -1,0 +1,28 @@
+{{- if and .Values.enabled .Values.tls.enabled .Values.tls.issuer }}
+# AMQPS server certificate, signed by an internal CA ClusterIssuer (covers the LAN host and the
+# in-cluster service DNS). cert-manager materializes the secret mounted at /etc/rabbitmq/certs.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "rabbitmq.fullname" . }}-amqps
+  namespace: {{ include "rabbitmq.namespace" . }}
+  labels:
+    {{- include "rabbitmq.labels" . | nindent 4 }}
+spec:
+  secretName: {{ include "rabbitmq.tlsSecretName" . }}
+  issuerRef:
+    name: {{ .Values.tls.issuer }}
+    kind: {{ .Values.tls.issuerKind | default "ClusterIssuer" }}
+  dnsNames:
+    {{- if .Values.internalAccess.hostname }}
+    - {{ .Values.internalAccess.hostname | quote }}
+    {{- end }}
+    - {{ include "rabbitmq.serviceName" . | quote }}
+    - {{ printf "%s.%s" (include "rabbitmq.serviceName" .) (include "rabbitmq.namespace" .) | quote }}
+    - {{ printf "%s.%s.svc" (include "rabbitmq.serviceName" .) (include "rabbitmq.namespace" .) | quote }}
+    - {{ printf "%s.%s.svc.cluster.local" (include "rabbitmq.serviceName" .) (include "rabbitmq.namespace" .) | quote }}
+    - {{ printf "%s.%s.svc.cluster.local" (include "rabbitmq.headlessName" .) (include "rabbitmq.namespace" .) | quote }}
+    {{- range .Values.tls.dnsNames }}
+    - {{ . | quote }}
+    {{- end }}
+{{- end }}

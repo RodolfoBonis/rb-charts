@@ -73,6 +73,9 @@ spec:
             {{- end }}
           ports:
             - { name: amqp, containerPort: {{ .Values.ports.amqp }}, protocol: TCP }
+            {{- if .Values.tls.enabled }}
+            - { name: amqps, containerPort: {{ .Values.ports.amqps }}, protocol: TCP }
+            {{- end }}
             - { name: management, containerPort: {{ .Values.ports.management }}, protocol: TCP }
             - { name: metrics, containerPort: {{ .Values.ports.metrics }}, protocol: TCP }
           resources:
@@ -93,10 +96,18 @@ spec:
             - { name: config, mountPath: /etc/rabbitmq/enabled_plugins, subPath: enabled_plugins }
             - { name: config, mountPath: /etc/rabbitmq/rabbitmq.conf, subPath: rabbitmq.conf }
             - { name: data, mountPath: /var/lib/rabbitmq }
+            {{- if .Values.tls.enabled }}
+            - { name: certs, mountPath: /etc/rabbitmq/certs, readOnly: true }
+            {{- end }}
       volumes:
         - name: config
           configMap:
             name: {{ include "rabbitmq.configName" . }}
+        {{- if .Values.tls.enabled }}
+        - name: certs
+          secret:
+            secretName: {{ include "rabbitmq.tlsSecretName" . }}
+        {{- end }}
         {{- if not .Values.persistence.enabled }}
         - name: data
           emptyDir: {}

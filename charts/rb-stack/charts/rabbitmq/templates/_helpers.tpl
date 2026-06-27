@@ -44,3 +44,7 @@ app.kubernetes.io/component: broker
 {{- define "rabbitmq.configName" -}}
 {{- printf "%s-rabbitmq-config" (include "rabbitmq.appName" .) }}
 {{- end }}
+
+{{- define "rabbitmq.tlsSecretName" -}}
+{{- .Values.tls.secretName | default (printf "%s-amqps-tls" (include "rabbitmq.fullname" .)) }}
+{{- end }}
