@@ -10,7 +10,12 @@ data:
   enabled_plugins: |
     [{{ join "," .Values.plugins }}].
   rabbitmq.conf: |
+    {{- if and .Values.tls.enabled .Values.tls.disablePlaintext }}
+    # Plaintext AMQP disabled — AMQPS (5671) only, so credentials/tokens never travel in cleartext.
+    listeners.tcp = none
+    {{- else }}
     listeners.tcp.default = {{ .Values.ports.amqp }}
+    {{- end }}
     management.tcp.port = {{ .Values.ports.management }}
     prometheus.tcp.port = {{ .Values.ports.metrics }}
     prometheus.return_per_object_metrics = true

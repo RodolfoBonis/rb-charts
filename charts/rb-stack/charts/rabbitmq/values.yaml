@@ -22,6 +22,8 @@ tls:
   issuerKind: ClusterIssuer  # or Issuer
   secretName: ""             # default {name}-rabbitmq-amqps-tls
   dnsNames: []               # extra SANs beyond the LAN host + service DNS
+  # Disable the plaintext AMQP listener (5672) entirely — AMQPS-only. Requires enabled: true.
+  disablePlaintext: false
 
 storage: 5Gi
 storageClassName: ""
