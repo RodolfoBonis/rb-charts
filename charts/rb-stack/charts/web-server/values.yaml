@@ -3,6 +3,10 @@
 
 enabled: false
 
+# When true, the pod mounts the rb-stack app secret (<app>-secret) via envFrom.
+# Set false for apps that supply their own secrets through `envFrom`.
+useAppSecret: true
+
 # Suffix for deployment/service names (e.g., "web" -> app-web, "api" -> app-api, "" -> app)
 suffix: web
 
