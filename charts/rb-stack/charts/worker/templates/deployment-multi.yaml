@@ -1,0 +1,124 @@
+{{- if and .Values.enabled .Values.workers }}
+{{- $root := . }}
+{{- range $w := .Values.workers }}
+{{- $wimg := $w.image | default dict }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "worker.appName" $root }}-{{ $w.name }}
+  namespace: {{ include "worker.namespace" $root }}
+  labels:
+    helm.sh/chart: {{ $root.Chart.Name }}-{{ $root.Chart.Version }}
+    app: {{ include "worker.appName" $root }}
+    app.kubernetes.io/name: {{ include "worker.appName" $root }}
+    app.kubernetes.io/instance: {{ $root.Release.Name }}
+    app.kubernetes.io/component: {{ $w.name }}
+    app.kubernetes.io/managed-by: {{ $root.Release.Service }}
+    environment: {{ (($root.Values.global).environment) | default "prod" }}
+  {{- if (($root.Values.global).reloader).enabled | default true }}
+  annotations:
+    reloader.stakater.com/auto: "true"
+  {{- end }}
+spec:
+  replicas: {{ $w.replicas | default $root.Values.replicas | default 1 }}
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: {{ include "worker.appName" $root }}
+      app.kubernetes.io/name: {{ include "worker.appName" $root }}
+      app.kubernetes.io/component: {{ $w.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "worker.appName" $root }}
+        app.kubernetes.io/name: {{ include "worker.appName" $root }}
+        app.kubernetes.io/component: {{ $w.name }}
+    spec:
+      serviceAccountName: {{ include "worker.serviceAccountName" $root }}
+      terminationGracePeriodSeconds: {{ $w.terminationGracePeriodSeconds | default $root.Values.terminationGracePeriodSeconds | default 60 }}
+      securityContext:
+        {{- include "worker.podSecurityContext" $root | nindent 8 }}
+      {{- with ($root.Values.global).imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ $w.name }}
+          image: "{{ $wimg.repository | default $root.Values.image.repository }}:{{ $wimg.tag | default $root.Values.image.tag }}"
+          imagePullPolicy: {{ $wimg.pullPolicy | default $root.Values.image.pullPolicy }}
+          {{- with $w.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $w.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            {{- include "worker.containerSecurityContext" $root | nindent 12 }}
+          resources:
+            {{- toYaml ($w.resources | default $root.Values.resources) | nindent 12 }}
+          envFrom:
+            {{- if $root.Values.useAppSecret }}
+            - secretRef:
+                name: {{ include "worker.secretName" $root }}
+            {{- end }}
+            {{- if $root.Values.configMap }}
+            - configMapRef:
+                name: {{ include "worker.appName" $root }}-worker-config
+            {{- end }}
+            {{- with $root.Values.envFrom }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+            {{- with $w.envFrom }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- $env := concat ($root.Values.env | default list) ($w.env | default list) }}
+          {{- with $env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with ($w.probes | default $root.Values.probes) }}
+          {{- if .liveness.enabled }}
+          livenessProbe:
+            exec:
+              command:
+                {{- toYaml .liveness.exec.command | nindent 16 }}
+            initialDelaySeconds: {{ .liveness.initialDelaySeconds }}
+            periodSeconds: {{ .liveness.periodSeconds }}
+          {{- end }}
+          {{- if .startup.enabled }}
+          startupProbe:
+            exec:
+              command:
+                {{- toYaml .startup.exec.command | nindent 16 }}
+            initialDelaySeconds: {{ .startup.initialDelaySeconds }}
+            periodSeconds: {{ .startup.periodSeconds }}
+            failureThreshold: {{ .startup.failureThreshold }}
+          {{- end }}
+          {{- end }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            {{- with $root.Values.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+            {{- with $w.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        {{- with $root.Values.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $w.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with ($w.affinity | default $root.Values.affinity) }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end }}

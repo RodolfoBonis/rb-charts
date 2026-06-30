@@ -1,17 +1,43 @@
 # Worker subchart defaults
-# Background worker Deployment: no Service, no Ingress, no HPA, exec probes optional.
+# Background worker Deployment(s): no Service, no Ingress, no HPA, exec probes optional.
+#
+# Two modes:
+#   - Single worker (legacy): leave `workers` empty; one Deployment from the
+#     top-level fields below (suffix/image/command/...).
+#   - Multiple workers: set `workers` to a list; one Deployment per entry. Each
+#     entry may override image/command/args/replicas/resources/env/envFrom/
+#     probes/volumes; the top-level env/envFrom/configMap/volumes are SHARED
+#     across all of them (so app config is declared once).
 
 enabled: false
 
-# Suffix for deployment name: "worker" -> app-worker
+# When true, every worker mounts the rb-stack app secret (<app>-secret) via
+# envFrom. Set false for apps that supply their own secrets through `envFrom`.
+useAppSecret: true
+
+# List of worker workloads. When non-empty it takes precedence over the single
+# legacy worker. Each entry: { name (required), image: {repository,tag,pullPolicy},
+# command: [], args: [], replicas, resources, env: [], envFrom: [], probes,
+# volumeMounts: [], volumes: [] }.
+workers: []
+
+# Shared, non-secret env rendered as <app>-worker-config and mounted on every
+# worker via envFrom (same shape as web-server.configMap).
+configMap: {}
+
+# Suffix for deployment name (single-worker mode): "worker" -> app-worker
 suffix: worker
 
 replicas: 1
 
+# Default image. Per-worker `image` overrides this. command/args override the
+# image entrypoint (e.g. select a binary in a multi-binary image).
 image:
   repository: ""
   tag: "latest"
   pullPolicy: IfNotPresent
+command: []
+args: []
 
 resources:
   requests:

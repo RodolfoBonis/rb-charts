@@ -49,8 +49,10 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           envFrom:
+            {{- if .Values.useAppSecret }}
             - secretRef:
                 name: {{ include "web-server.secretName" . }}
+            {{- end }}
           {{- if .Values.configMap }}
             - configMapRef:
                 name: {{ include "web-server.appName" . }}-config
