@@ -55,3 +55,10 @@ tls:
   enabled: false
   existingSecret: ""              # secret with tls.crt/tls.key/ca.crt (e.g. {app}-redis-{env}-tls)
   authClients: "no"               # "no" = server TLS only; "yes" = require client certs (mTLS)
+  # When issuer is set, the chart creates a cert-manager Certificate (secretName =
+  # existingSecret) with SANs derived from the Service name. Leave empty to bring
+  # your own secret.
+  issuer: ""                      # cert-manager (Cluster)Issuer name, e.g. rb-lab-ca-issuer
+  issuerKind: ClusterIssuer       # or "Issuer"
+  duration: "2160h"
+  renewBefore: "360h"
