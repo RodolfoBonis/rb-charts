@@ -42,3 +42,16 @@ auth:
   enabled: false
   existingSecret: ""              # secret holding the password (e.g. {app}-secret)
   existingSecretKey: REDIS_PASSWORD
+
+# Optional TLS. Off by default so apps stay plaintext unless they opt in.
+# When enabled, the server serves TLS only (plaintext --port disabled) on the
+# same port number, and clients must connect over TLS. The cert secret must
+# contain tls.crt, tls.key and ca.crt (e.g. a cert-manager Certificate whose
+# SANs include the Service name). authClients "no" = server-side TLS only
+# (clients verify the server via ca.crt); "yes" = require client certs (mTLS).
+# Consuming apps must set their Redis client to TLS-on and point REDIS_TLS_CA at
+# the same ca.crt.
+tls:
+  enabled: false
+  existingSecret: ""              # secret with tls.crt/tls.key/ca.crt (e.g. {app}-redis-{env}-tls)
+  authClients: "no"               # "no" = server TLS only; "yes" = require client certs (mTLS)
