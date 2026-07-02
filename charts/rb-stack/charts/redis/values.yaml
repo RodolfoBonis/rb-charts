@@ -42,3 +42,11 @@ auth:
   enabled: false
   existingSecret: ""              # secret holding the password (e.g. {app}-secret)
   existingSecretKey: REDIS_PASSWORD
+
+# NOTE: TLS is NOT supported by this subchart. The server listens on plaintext
+# TCP only (the deployment has no --tls-port / --tls-cert-file, and the probes
+# use plain `redis-cli ping`). Consuming apps MUST connect in plaintext:
+# the app's Redis secret (e.g. Vault `<basePath>/<env>/redis`) must set
+# REDIS_TLS_ENABLED=false and leave REDIS_PASSWORD empty when auth.enabled=false.
+# Setting REDIS_TLS_ENABLED=true against this server makes the client attempt a
+# TLS handshake against a plaintext port, which fails and disables the cache.
