@@ -44,9 +44,25 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if or .Values.persistence.enabled .Values.auth.enabled .Values.maxmemory }}
+          {{- if or .Values.persistence.enabled .Values.auth.enabled .Values.maxmemory .Values.tls.enabled }}
           command:
             - redis-server
+            {{- if .Values.tls.enabled }}
+            # Serve TLS only: disable the plaintext port and listen with TLS on
+            # the same port number. Clients verify the server via ca.crt.
+            - --tls-port
+            - {{ .Values.port | quote }}
+            - --port
+            - "0"
+            - --tls-cert-file
+            - /etc/redis-certs/tls.crt
+            - --tls-key-file
+            - /etc/redis-certs/tls.key
+            - --tls-ca-cert-file
+            - /etc/redis-certs/ca.crt
+            - --tls-auth-clients
+            - {{ .Values.tls.authClients | default "no" | quote }}
+            {{- end }}
             {{- if .Values.auth.enabled }}
             - --requirepass
             - $(REDIS_PASSWORD)
@@ -84,6 +100,13 @@ spec:
             exec:
               command:
                 - redis-cli
+                {{- if .Values.tls.enabled }}
+                # Localhost health check: --insecure skips hostname/cert
+                # verification (the cert SANs are the Service name, not
+                # 127.0.0.1). REDISCLI_AUTH handles the password when auth is on.
+                - --tls
+                - --insecure
+                {{- end }}
                 - ping
             initialDelaySeconds: 5
             periodSeconds: 5
@@ -91,6 +114,10 @@ spec:
             exec:
               command:
                 - redis-cli
+                {{- if .Values.tls.enabled }}
+                - --tls
+                - --insecure
+                {{- end }}
                 - ping
             initialDelaySeconds: 10
             periodSeconds: 10
@@ -99,6 +126,11 @@ spec:
             - name: data
               mountPath: /data
             {{- end }}
+            {{- if .Values.tls.enabled }}
+            - name: redis-certs
+              mountPath: /etc/redis-certs
+              readOnly: true
+            {{- end }}
             - name: tmp
               mountPath: /tmp
       volumes:
@@ -106,6 +138,14 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: {{ include "redis.pvcName" . }}
+        {{- end }}
+        {{- if .Values.tls.enabled }}
+        - name: redis-certs
+          secret:
+            secretName: {{ required "redis.tls.existingSecret is required when redis.tls.enabled" .Values.tls.existingSecret }}
+            # 0440 so the redis process (runAsUser 999, in the fsGroup) can read
+            # tls.key via group; 0400 would deny group read and break startup.
+            defaultMode: 0440
         {{- end }}
         - name: tmp
           emptyDir: {}
