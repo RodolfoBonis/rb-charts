@@ -1,0 +1,29 @@
+{{- if and .Values.enabled .Values.tls.enabled .Values.tls.issuer }}
+# cert-manager Certificate for the redis server. Created only when tls.issuer is
+# set; otherwise bring your own secret via tls.existingSecret. SANs are derived
+# from the in-cluster Service name so the client can verify the server when
+# connecting by service name.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ required "redis.tls.existingSecret is required when redis.tls.enabled" .Values.tls.existingSecret }}
+  namespace: {{ include "redis.namespace" . }}
+  labels:
+    {{- include "redis.labels" . | nindent 4 }}
+spec:
+  secretName: {{ .Values.tls.existingSecret }}
+  duration: {{ .Values.tls.duration | default "2160h" }}
+  renewBefore: {{ .Values.tls.renewBefore | default "360h" }}
+  issuerRef:
+    name: {{ .Values.tls.issuer }}
+    kind: {{ .Values.tls.issuerKind | default "ClusterIssuer" }}
+    group: cert-manager.io
+  dnsNames:
+    - {{ include "redis.serviceName" . }}
+    - {{ include "redis.serviceName" . }}.{{ include "redis.namespace" . }}
+    - {{ include "redis.serviceName" . }}.{{ include "redis.namespace" . }}.svc
+    - {{ include "redis.serviceName" . }}.{{ include "redis.namespace" . }}.svc.cluster.local
+    {{- if .Values.internalAccess.hostname }}
+    - {{ .Values.internalAccess.hostname }}
+    {{- end }}
+{{- end }}
