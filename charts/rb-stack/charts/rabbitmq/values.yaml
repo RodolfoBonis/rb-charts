@@ -33,7 +33,9 @@ persistence:
 resources:
   requests:
     memory: "256Mi"
-    cpu: "100m"
+    # Broker real: mantém um pouco mais de request que os stateless (uso medido ~68m em pico),
+    # mas 40m (não 100m) já garante prioridade de scheduling sem reservar ociosidade.
+    cpu: "40m"
   limits:
     memory: "1Gi"
 

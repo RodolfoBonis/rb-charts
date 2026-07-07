@@ -26,7 +26,8 @@ maxmemoryPolicy: ""        # e.g. "allkeys-lru", "volatile-lru", "noeviction"
 resources:
   requests:
     memory: "64Mi"
-    cpu: "50m"
+    # CPU request enxuto (uso real ~1m); teto real é o limits. Libera budget de scheduling.
+    cpu: "10m"
   limits:
     memory: "128Mi"
 

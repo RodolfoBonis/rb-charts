@@ -42,7 +42,10 @@ args: []
 resources:
   requests:
     memory: "128Mi"
-    cpu: "100m"
+    # CPU request = piso de scheduling / peso CFS (não é teto). Workers costumam ser I/O-bound
+    # (esperam rede/broker) → uso real de 1-5m com request de 100m. 20m casa com a realidade;
+    # workers CPU-bound sobrescrevem por-worker (resources) ou no values do app.
+    cpu: "20m"
   limits:
     memory: "256Mi"
 
