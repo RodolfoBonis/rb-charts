@@ -16,7 +16,9 @@ storageClassName: ""
 resources:
   requests:
     memory: "256Mi"
-    cpu: "250m"
+    # Postgres (modo Deployment legado): uso real medido ~13-22m com request de 250m. 50m dá
+    # prioridade de scheduling ao banco sem reservar 1/16 do nó ocioso. (CNPG usa o bloco cnpg.*)
+    cpu: "50m"
   limits:
     memory: "512Mi"
     cpu: "500m"

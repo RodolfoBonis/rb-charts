@@ -26,7 +26,10 @@ host: ""
 resources:
   requests:
     memory: "128Mi"
-    cpu: "100m"
+    # CPU request = piso de scheduling / peso CFS (NÃO é teto — teto é limits). Medição real
+    # no cluster mostrou web-servers usando 1-5m com request de 100m; 20m casa com a realidade
+    # e libera budget do nó. Apps com carga real de CPU sobrescrevem no próprio values.
+    cpu: "20m"
   limits:
     memory: "256Mi"
 
