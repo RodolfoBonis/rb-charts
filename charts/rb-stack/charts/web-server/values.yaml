@@ -19,6 +19,17 @@ image:
 
 port: 3000
 
+# Optional per-web-server security context override. Merged OVER global.securityContext
+# (these values win). Only set the fields you need to change; unset fields fall back to
+# global.securityContext, then to the secure defaults (non-root uid 1000, read-only rootfs).
+# Explicit 0 / false ARE honored here, so images that must start as root or need a
+# writable root filesystem can opt out, e.g.:
+#   securityContext:
+#     runAsNonRoot: false
+#     runAsUser: 0
+#     readOnlyRootFilesystem: false
+securityContext: {}
+
 # Cloudflare exposure
 expose: false
 host: ""

@@ -81,19 +81,30 @@ Service name
 {{- end }}
 
 {{/*
-Pod security context
+Security context field resolution.
+Precedence per field: web-server override (.Values.securityContext) -> shared
+global.securityContext -> secure default. Presence is tested with `hasKey`, NOT
+`default`/`merge`: Sprig's `default` and mergo (behind `merge`) both treat 0 and
+false as EMPTY, which silently coerced runAsUser: 0 back to 1000 and
+readOnlyRootFilesystem: false back to true — making it impossible to run a
+container as root or with a writable root filesystem. `hasKey` honors any
+explicit value, including 0 and false.
 */}}
 {{- define "web-server.podSecurityContext" -}}
-runAsNonRoot: {{ (((.Values.global).securityContext).runAsNonRoot) | default true }}
-runAsUser: {{ (((.Values.global).securityContext).runAsUser) | default 1000 }}
-runAsGroup: {{ (((.Values.global).securityContext).runAsGroup) | default 1000 }}
-fsGroup: {{ (((.Values.global).securityContext).fsGroup) | default 1000 }}
+{{- $g := (.Values.global).securityContext | default dict -}}
+{{- $l := .Values.securityContext | default dict -}}
+runAsNonRoot: {{ if hasKey $l "runAsNonRoot" }}{{ $l.runAsNonRoot }}{{ else if hasKey $g "runAsNonRoot" }}{{ $g.runAsNonRoot }}{{ else }}true{{ end }}
+runAsUser: {{ if hasKey $l "runAsUser" }}{{ $l.runAsUser }}{{ else if hasKey $g "runAsUser" }}{{ $g.runAsUser }}{{ else }}1000{{ end }}
+runAsGroup: {{ if hasKey $l "runAsGroup" }}{{ $l.runAsGroup }}{{ else if hasKey $g "runAsGroup" }}{{ $g.runAsGroup }}{{ else }}1000{{ end }}
+fsGroup: {{ if hasKey $l "fsGroup" }}{{ $l.fsGroup }}{{ else if hasKey $g "fsGroup" }}{{ $g.fsGroup }}{{ else }}1000{{ end }}
 {{- end }}
 
 {{/*
 Container security context
 */}}
 {{- define "web-server.containerSecurityContext" -}}
-readOnlyRootFilesystem: {{ (((.Values.global).securityContext).readOnlyRootFilesystem) | default true }}
-allowPrivilegeEscalation: {{ (((.Values.global).securityContext).allowPrivilegeEscalation) | default false }}
+{{- $g := (.Values.global).securityContext | default dict -}}
+{{- $l := .Values.securityContext | default dict -}}
+readOnlyRootFilesystem: {{ if hasKey $l "readOnlyRootFilesystem" }}{{ $l.readOnlyRootFilesystem }}{{ else if hasKey $g "readOnlyRootFilesystem" }}{{ $g.readOnlyRootFilesystem }}{{ else }}true{{ end }}
+allowPrivilegeEscalation: {{ if hasKey $l "allowPrivilegeEscalation" }}{{ $l.allowPrivilegeEscalation }}{{ else if hasKey $g "allowPrivilegeEscalation" }}{{ $g.allowPrivilegeEscalation }}{{ else }}false{{ end }}
 {{- end }}
