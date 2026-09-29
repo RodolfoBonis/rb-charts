@@ -80,6 +80,26 @@ ingress:
     enabled: true
     issuer: letsencrypt-issuer
 
+# Rota(s) no API gateway (Gravitee). Opt-in: gera um ApiV4Definition por item de routes[]
+# (CRD do GKO), no namespace do app, referenciando o ManagementContext compartilhado. Cada rota
+# fixa id/crossId (identidade estável da API no APIM). target default = service do próprio app.
+gateway:
+  enabled: false
+  host: ""
+  contextRef:
+    name: apim-ctx
+    namespace: gravitee
+  # routes:
+  #   - name: myapi                 # metadata.name + spec.name do ApiV4Definition
+  #     description: "..."          # opcional (default = name)
+  #     path: /myapi                # context-path no gateway
+  #     id: "<uuid>"                # spec.id (fixo)
+  #     crossId: "<uuid>"           # spec.crossId (fixo)
+  #     forwardedPrefix: /myapi     # opcional: injeta X-Forwarded-Prefix
+  #     host: ""                    # opcional (default = gateway.host)
+  #     target: ""                  # opcional (default = http://<app-svc>.<ns>:<port>)
+  routes: []
+
 # ConfigMap data (key-value pairs for environment variables)
 configMap: {}
 
