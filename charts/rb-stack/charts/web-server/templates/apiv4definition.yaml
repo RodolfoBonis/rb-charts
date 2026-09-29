@@ -1,0 +1,83 @@
+{{- if and .Values.enabled (.Values.gateway).enabled }}
+{{- $svc := include "web-server.serviceName" . -}}
+{{- $ns := include "web-server.namespace" . -}}
+{{- $port := .Values.port -}}
+{{- $gwHost := .Values.gateway.host -}}
+{{- $ctx := .Values.gateway.contextRef -}}
+{{- $labels := include "web-server.labels" . -}}
+{{- range .Values.gateway.routes }}
+---
+# Rota do gateway (Gravitee) gerada pelo rb-stack a partir de web-server.gateway.routes[].
+# Roda no namespace do próprio app e referencia o ManagementContext compartilhado via contextRef.
+# id/crossId FIXADOS = identidade estável da API no APIM (preserva a mesma API entre ambientes/migrações).
+apiVersion: gravitee.io/v1alpha1
+kind: ApiV4Definition
+metadata:
+  name: {{ .name }}
+  namespace: {{ $ns }}
+  labels:
+    {{- $labels | nindent 4 }}
+spec:
+  contextRef:
+    name: {{ $ctx.name }}
+    namespace: {{ $ctx.namespace }}
+  id: {{ .id | quote }}
+  crossId: {{ .crossId | quote }}
+  name: {{ .name | quote }}
+  description: {{ .description | default .name | quote }}
+  version: "1.0"
+  type: PROXY
+  state: STARTED
+  listeners:
+    - type: HTTP
+      paths:
+        - host: {{ .host | default $gwHost }}
+          path: {{ .path }}
+      entrypoints:
+        - type: http-proxy
+          qos: AUTO
+  endpointGroups:
+    - name: {{ .name }}
+      type: http-proxy
+      endpoints:
+        - name: default
+          type: http-proxy
+          inheritConfiguration: false
+          secondary: false
+          configuration:
+            target: {{ .target | default (printf "http://%s.%s.svc.cluster.local:%v" $svc $ns $port) | quote }}
+  flowExecution:
+    mode: DEFAULT
+    matchRequired: false
+  {{- if .forwardedPrefix }}
+  # O gateway v4 remove o context-path antes de encaminhar; informa à API o prefixo externo
+  # (X-Forwarded-Prefix) p/ o Swagger/basePath ficarem cientes do caminho real.
+  flows:
+    - name: forwarded-prefix
+      enabled: true
+      selectors:
+        - type: HTTP
+          path: "/"
+          pathOperator: STARTS_WITH
+          methods: []
+      request:
+        - name: Add X-Forwarded-Prefix
+          enabled: true
+          policy: transform-headers
+          configuration:
+            addHeaders:
+              - name: X-Forwarded-Prefix
+                value: {{ .forwardedPrefix | quote }}
+      response: []
+      subscribe: []
+      publish: []
+  {{- end }}
+  plans:
+    KeyLess:
+      name: "Público"
+      description: "Sem autenticação no gateway (a API valida o próprio token)"
+      security:
+        type: "KEY_LESS"
+  notifyMembers: false
+{{- end }}
+{{- end }}
