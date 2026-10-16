@@ -36,6 +36,11 @@ spec:
         app.kubernetes.io/component: {{ $w.name }}
     spec:
       serviceAccountName: {{ include "worker.serviceAccountName" $root }}
+      {{- $automount := $w.automountServiceAccountToken }}
+      {{- if kindIs "invalid" $automount }}{{ $automount = $root.Values.automountServiceAccountToken }}{{ end }}
+      {{- if not (kindIs "invalid" $automount) }}
+      automountServiceAccountToken: {{ $automount }}
+      {{- end }}
       terminationGracePeriodSeconds: {{ $w.terminationGracePeriodSeconds | default $root.Values.terminationGracePeriodSeconds | default 60 }}
       securityContext:
         {{- include "worker.podSecurityContext" $root | nindent 8 }}
