@@ -22,6 +22,9 @@ spec:
         {{- include "worker.selectorLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ include "worker.serviceAccountName" . }}
+      {{- if not (kindIs "invalid" .Values.automountServiceAccountToken) }}
+      automountServiceAccountToken: {{ .Values.automountServiceAccountToken }}
+      {{- end }}
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       securityContext:
         {{- include "worker.podSecurityContext" . | nindent 8 }}

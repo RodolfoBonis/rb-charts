@@ -81,3 +81,9 @@ volumes: []
 
 # Pod affinity/anti-affinity rules
 affinity: {}
+
+# Mount the ServiceAccount token into worker pods. Leave unset (null) to keep the
+# Kubernetes default (true). Set false for workers that never call the Kubernetes
+# API (defense in depth: a leaked token can't be replayed against the API). Each
+# `workers` entry may override it with the same key; unset entries fall back here.
+automountServiceAccountToken: null
