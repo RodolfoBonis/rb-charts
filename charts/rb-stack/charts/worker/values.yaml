@@ -23,7 +23,8 @@ useAppSecret: true
 #   - securityContext: merged over the default container securityContext of the
 #     main container (e.g. a different runAsUser per container).
 #   - initContainers / extraContainers: raw container specs rendered verbatim
-#     (sidecars). They get NO defaults: set their securityContext/resources
+#     (sidecars). An extra container without `image` inherits the worker's
+#     image/pullPolicy; nothing else is defaulted: set securityContext/resources
 #     explicitly. The pod never shares the process namespace.
 workers: []
 
