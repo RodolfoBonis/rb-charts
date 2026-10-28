@@ -18,7 +18,13 @@ useAppSecret: true
 # List of worker workloads. When non-empty it takes precedence over the single
 # legacy worker. Each entry: { name (required), image: {repository,tag,pullPolicy},
 # command: [], args: [], replicas, resources, env: [], envFrom: [], probes,
-# volumeMounts: [], volumes: [] }.
+# volumeMounts: [], volumes: [], securityContext: {}, initContainers: [],
+# extraContainers: [] }.
+#   - securityContext: merged over the default container securityContext of the
+#     main container (e.g. a different runAsUser per container).
+#   - initContainers / extraContainers: raw container specs rendered verbatim
+#     (sidecars). They get NO defaults: set their securityContext/resources
+#     explicitly. The pod never shares the process namespace.
 workers: []
 
 # Shared, non-secret env rendered as <app>-worker-config and mounted on every
