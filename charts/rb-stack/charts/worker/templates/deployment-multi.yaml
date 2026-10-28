@@ -48,6 +48,10 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with $w.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ $w.name }}
           image: "{{ $wimg.repository | default $root.Values.image.repository }}:{{ $wimg.tag | default $root.Values.image.tag }}"
@@ -60,8 +64,9 @@ spec:
           args:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- $csc := include "worker.containerSecurityContext" $root | fromYaml }}
           securityContext:
-            {{- include "worker.containerSecurityContext" $root | nindent 12 }}
+            {{- toYaml (mergeOverwrite $csc ($w.securityContext | default dict)) | nindent 12 }}
           resources:
             {{- toYaml ($w.resources | default $root.Values.resources) | nindent 12 }}
           envFrom:
@@ -112,6 +117,9 @@ spec:
             {{- with $w.volumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
+        {{- with $w.extraContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       volumes:
         - name: tmp
           emptyDir: {}

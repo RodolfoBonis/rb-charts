@@ -68,16 +68,19 @@ Deployment name
 Pod security context
 */}}
 {{- define "worker.podSecurityContext" -}}
-runAsNonRoot: {{ (((.Values.global).securityContext).runAsNonRoot) | default true }}
-runAsUser: {{ (((.Values.global).securityContext).runAsUser) | default 1000 }}
-runAsGroup: {{ (((.Values.global).securityContext).runAsGroup) | default 1000 }}
-fsGroup: {{ (((.Values.global).securityContext).fsGroup) | default 1000 }}
+{{- $sc := ((.Values.global).securityContext) | default dict -}}
+runAsNonRoot: {{ ternary true $sc.runAsNonRoot (kindIs "invalid" $sc.runAsNonRoot) }}
+runAsUser: {{ $sc.runAsUser | default 1000 }}
+runAsGroup: {{ $sc.runAsGroup | default 1000 }}
+fsGroup: {{ $sc.fsGroup | default 1000 }}
 {{- end }}
 
 {{/*
-Container security context
+Container security context. Booleans respect an explicit false (`| default true` would turn
+false into true).
 */}}
 {{- define "worker.containerSecurityContext" -}}
-readOnlyRootFilesystem: {{ (((.Values.global).securityContext).readOnlyRootFilesystem) | default true }}
-allowPrivilegeEscalation: {{ (((.Values.global).securityContext).allowPrivilegeEscalation) | default false }}
+{{- $sc := ((.Values.global).securityContext) | default dict -}}
+readOnlyRootFilesystem: {{ ternary true $sc.readOnlyRootFilesystem (kindIs "invalid" $sc.readOnlyRootFilesystem) }}
+allowPrivilegeEscalation: {{ ternary false $sc.allowPrivilegeEscalation (kindIs "invalid" $sc.allowPrivilegeEscalation) }}
 {{- end }}
