@@ -29,6 +29,11 @@ spec:
   probes:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- with .Values.cnpg.managedRoles }}
+  managed:
+    roles:
+      {{- toYaml . | nindent 6 }}
+  {{- end }}
   bootstrap:
     initdb:
       database: {{ include "postgres.cnpgDatabase" . }}
