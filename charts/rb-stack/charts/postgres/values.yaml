@@ -58,6 +58,10 @@ cnpg:
   # timeoutSeconds. Ex.: liveness folgada p/ sobreviver a ~5min de stall, readiness estrita.
   livenessProbeTimeout: null
   probes: {}
+  # Roles extras gerenciados pelo CNPG (spec.managed.roles), ex. um usuário só-leitura para o
+  # Grafana. Cada item segue a API do CNPG: name, ensure, login, passwordSecret.name (secret
+  # kubernetes.io/basic-auth), inRoles, connectionLimit... Os GRANTs ficam com as migrations do app.
+  managedRoles: []
   # Parâmetros do Postgres (spec.postgresql). archive_timeout garante RPO limitado
   # mesmo com a base ociosa (arquiva o WAL ao menos a cada intervalo).
   postgresql:
