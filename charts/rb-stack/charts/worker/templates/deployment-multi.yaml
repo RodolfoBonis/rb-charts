@@ -117,8 +117,11 @@ spec:
             {{- with $w.volumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-        {{- with $w.extraContainers }}
-        {{- toYaml . | nindent 8 }}
+        {{- range $c := $w.extraContainers }}
+        {{- /* Sem image: herda a imagem do worker (ex.: outro binário da mesma imagem), para o
+             bump de tag do contêiner principal valer também para o sidecar. */}}
+        {{- $c = merge (dict) $c (dict "image" (printf "%s:%s" ($wimg.repository | default $root.Values.image.repository) ($wimg.tag | default $root.Values.image.tag)) "imagePullPolicy" ($wimg.pullPolicy | default $root.Values.image.pullPolicy)) }}
+        - {{ toYaml $c | indent 10 | trim }}
         {{- end }}
       volumes:
         - name: tmp
