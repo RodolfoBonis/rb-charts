@@ -17,6 +17,10 @@ image:
   tag: "latest"
   pullPolicy: IfNotPresent
 
+# Optional container command/args. Empty = image ENTRYPOINT/CMD.
+command: []
+args: []
+
 port: 3000
 
 # Optional per-web-server security context override. Merged OVER global.securityContext
