@@ -69,6 +69,9 @@ web-server:
     repository: ""
     tag: "latest"
     pullPolicy: IfNotPresent
+  # Optional container command/args. Empty = image ENTRYPOINT/CMD.
+  command: []
+  args: []
   port: 3000
   expose: false  # If true, adds cloudflare.io/expose annotation
   host: ""       # Required if expose=true
