@@ -65,6 +65,8 @@ web-server:
   # Suffix for deployment/service names: "web" -> app-web, "api" -> app-api, "" -> app
   suffix: web
   replicas: 1
+  # Optional Deployment strategy (e.g. type: Recreate). Empty = RollingUpdate.
+  strategy: {}
   image:
     repository: ""
     tag: "latest"

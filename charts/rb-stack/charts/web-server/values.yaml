@@ -12,6 +12,10 @@ suffix: web
 
 replicas: 1
 
+# Optional Deployment strategy. Empty = Kubernetes default (RollingUpdate). Use
+# `type: Recreate` for single-writer RWO volumes or memory-heavy pods that can't run twice.
+strategy: {}
+
 image:
   repository: ""
   tag: "latest"
