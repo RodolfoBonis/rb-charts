@@ -83,6 +83,15 @@ spec:
               port: http
             initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            {{- with .Values.probes.readiness.timeoutSeconds }}
+            timeoutSeconds: {{ . }}
+            {{- end }}
+            {{- with .Values.probes.readiness.failureThreshold }}
+            failureThreshold: {{ . }}
+            {{- end }}
+            {{- with .Values.probes.readiness.successThreshold }}
+            successThreshold: {{ . }}
+            {{- end }}
           {{- end }}
           {{- if .Values.probes.liveness.enabled }}
           livenessProbe:
@@ -91,6 +100,15 @@ spec:
               port: http
             initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            {{- with .Values.probes.liveness.timeoutSeconds }}
+            timeoutSeconds: {{ . }}
+            {{- end }}
+            {{- with .Values.probes.liveness.failureThreshold }}
+            failureThreshold: {{ . }}
+            {{- end }}
+            {{- with .Values.probes.liveness.successThreshold }}
+            successThreshold: {{ . }}
+            {{- end }}
           {{- end }}
           {{- if .Values.probes.startup.enabled }}
           startupProbe:
@@ -100,6 +118,12 @@ spec:
             initialDelaySeconds: {{ .Values.probes.startup.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.startup.periodSeconds }}
             failureThreshold: {{ .Values.probes.startup.failureThreshold }}
+            {{- with .Values.probes.startup.timeoutSeconds }}
+            timeoutSeconds: {{ . }}
+            {{- end }}
+            {{- with .Values.probes.startup.successThreshold }}
+            successThreshold: {{ . }}
+            {{- end }}
           {{- end }}
           volumeMounts:
             - name: tmp

@@ -52,23 +52,33 @@ resources:
   limits:
     memory: "256Mi"
 
+# Probes. `timeoutSeconds`, `failureThreshold` e `successThreshold` são OPCIONAIS: só são
+# renderizados quando definidos; sem eles, valem os defaults do Kubernetes (timeoutSeconds 1,
+# failureThreshold 3, successThreshold 1). Workloads CPU-bound (ex.: inferência) devem afrouxar
+# a liveness — timeoutSeconds 5 / failureThreshold 6 — para um pico transitório não matar o pod.
 probes:
   readiness:
     enabled: true
     path: /health
     initialDelaySeconds: 5
     periodSeconds: 5
+    # timeoutSeconds: 3
+    # failureThreshold: 3
+    # successThreshold: 1
   liveness:
     enabled: true
     path: /health
     initialDelaySeconds: 10
     periodSeconds: 10
+    # timeoutSeconds: 5
+    # failureThreshold: 6
   startup:
     enabled: false
     path: /health
     initialDelaySeconds: 10
     periodSeconds: 10
     failureThreshold: 30
+    # timeoutSeconds: 3
 
 hpa:
   enabled: false
